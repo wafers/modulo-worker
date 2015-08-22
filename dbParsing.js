@@ -7,7 +7,6 @@ var dbRemote = require("seraph")({
     server: process.env.DATABASE_URL || config.dbURL
 });
 var ASQ = require('asynquence');
-var q = require('q');
 var urlToJobSystem = process.env.joburl||config.joburl
 
 var relationshipInsert = module.exports.relationshipInsert = function(collection, moduleName, cb) {
