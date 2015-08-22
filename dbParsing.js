@@ -72,7 +72,7 @@ var dbInsert = module.exports.dbInsert = function(data) {
                 starred: data.starred.length,
                 downloads: JSON.stringify(data.downloads),
                 monthlyDownloadSum: data.monthlyDownloadSum,
-                dependentsSize: data.dependents.length,
+                dependentsSize: data.dependentsSize,
                 readme: data.readme,
                 keywords: data.keywords,
                 subscribers: data.subscribers,
