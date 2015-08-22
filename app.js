@@ -12,7 +12,7 @@ var urlToJobSystem = process.env.joburl||config.joburl
 
 
 request({
-        url: urlToJobSystem
+        url: urlToJobSystem,
         method: 'GET',
         json: true
     },
