@@ -74,10 +74,18 @@ var dbInsert = module.exports.dbInsert = function(data) {
                 dependentsSize: data.dependentsSize,
                 readme: data.readme,
                 keywords: data.keywords,
-                subscribers: data.subscribers,
-                forks: data.forks,
-                watchers: data.watchers,
-                openIssues: data.openIssues
+                dateRank: data.dateRank,
+                versionNumberRank: data.versionNumberRank,
+                downloadRank: data.downloadRank,
+                starRank: data.starRank,
+                dependentRank: data.dependentRank,
+                completenessRank: data.completenessRank,
+                completenessFailures: data.completenessFailures,
+                overallRank: data.overallRank,
+                // subscribers: data.subscribers,
+                // forks: data.forks,
+                // watchers: data.watchers,
+                // openIssues: data.openIssues
             },
             function(err, node) {
                 if (err) {
