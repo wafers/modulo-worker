@@ -117,6 +117,8 @@ var calculateRank = module.exports.calculateRank = function(module) {
     // module.overallRank = Math.floor(rankSum/7)
     var rankSum = (module.dateRank + module.versionNumberRank + module.downloadRank + module.starRank + module.dependentRank + module.completenessRank)
     module.overallRank = Math.floor(rankSum/6)
+
+    return module;
   }
 
 // Returns an array of all the dependents
@@ -214,6 +216,9 @@ var moduleDataBuilder = module.exports.moduleDataBuilder = function(moduleName, 
               // finalData['forks'] = result['forks_count'];
               // finalData['watchers'] = result['watchers_count'];
               // finalData['openIssues'] = result['open_issues_count'];
+
+              // Calculate ranking before inserting into the DB
+              finalData = calculateRank(finalData);
 
               cb(null, finalData);
             }//);
