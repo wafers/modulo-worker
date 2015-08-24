@@ -246,7 +246,7 @@ var requestForModule = module.exports.requestForModule = function(module) {
             if (err) {
                 requestForModule()
             } else {
-                dbParser.dbInsert(data)
+                dbInsert(data)
             }
         })
     }
