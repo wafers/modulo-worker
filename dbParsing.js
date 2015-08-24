@@ -7,7 +7,7 @@ var dbRemote = require("seraph")({
     server: process.env.DATABASE_URL || config.dbURL
 });
 var ASQ = require('asynquence');
-var urlToJobSystem = process.env.joburl||config.joburl
+var urlToJobSystem = process.env.joburl || config.joburl
 
 var relationshipInsert = module.exports.relationshipInsert = function(collection, moduleName, cb) {
     // var collection =
@@ -107,10 +107,7 @@ var dbInsert = module.exports.dbInsert = function(data) {
                                 if (!err && resp.statusCode === 200) {
                                     console.log("We Are Done")
                                 } else if (!err && resp.statusCode === 201) {
-                                    console.log("New Module to Work On")
-                                    helpers.moduleDataBuilder(body.module, function(err, data) {
-                                        dbInsert(data)
-                                    })
+                                    requestForModule(body.module)
                                 } else if (err) {
                                     console.log("Error on the Job Server Response \n", err)
                                 }
@@ -216,4 +213,41 @@ var keyInsert = module.exports.keyInsert = function(dataObj, cb) {
 
     }
     doBatch();
+}
+
+
+var requestForModule = module.exports.requestForModule = function(module) {
+    if (!module) {
+        request({
+                url: urlToJobSystem,
+                method: 'GET',
+                json: true
+            },
+            function(err, resp, body) {
+                var dependencys = {}
+                if (!err && resp.statusCode == 200) {
+                    helpers.moduleDataBuilder(body.module, function(err, data) {
+                        if (err) {
+                            requestForModule()
+                        } else {
+                            dbInsert(data)
+                        }
+
+                    })
+                } else {
+                    console.log("Something went wrong, here is the response code and the error")
+                    console.log(resp.statusCode)
+                    console.log(err)
+                }
+            })
+    } else {
+        console.log("New Module to Work On")
+        helpers.moduleDataBuilder(module, function(err, data) {
+            if (err) {
+                requestForModule()
+            } else {
+                dbParser.dbInsert(data)
+            }
+        })
+    }
 }
