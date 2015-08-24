@@ -10,21 +10,22 @@ var npm = new Registry({
 });
 var db = require(__dirname + '/dbParsing.js');
 
+// Comment out GitHub data. May re-implement later.
 // Configure github npm module
-var GitHubApi = require('github');
-var github = new GitHubApi({
-    // required 
-    version: "3.0.0",
-    // optional 
-    debug: true,
-    protocol: "https",
-    host: "api.github.com", // should be api.github.com for GitHub 
-    pathPrefix: "", // for some GHEs; none for GitHub 
-    timeout: 5000,
-    headers: {
-        "user-agent": "makersquare-was-here" // GitHub is happy with a unique user agent 
-    }
-});
+// var GitHubApi = require('github');
+// var github = new GitHubApi({
+//     // required 
+//     version: "3.0.0",
+//     // optional 
+//     debug: true,
+//     protocol: "https",
+//     host: "api.github.com", // should be api.github.com for GitHub 
+//     pathPrefix: "", // for some GHEs; none for GitHub 
+//     timeout: 5000,
+//     headers: {
+//         "user-agent": "makersquare-was-here" // GitHub is happy with a unique user agent 
+//     }
+// });
 
 ///////////////// HELPER FUNCTIONS /////////////////
 
@@ -55,11 +56,17 @@ var calculateRank = module.exports.calculateRank = function(module) {
       module.downloadRank = Math.log10(module.monthlyDownloadSum)*15+10 > 100 ? 100 : Math.floor(Math.log10(module.monthlyDownloadSum)*15+10);
     }
 
-    // Rank by number of NPM stars and Github stars. 
-    if (!module.starred || !module.watchers) {
+    // Comment out GitHub data. May re-implement later.
+    // // Rank by number of NPM stars and Github stars. 
+    // if (!module.starred || !module.watchers) {
+    //   module.starRank = 0;
+    // } else { // NPM stars added to GitHub stars, then scaled on log10. Max score of 100 reached at 10,000 combined stars.
+    //   module.starRank = Math.floor(Math.log10(module.starred+module.watchers)*25) > 100 ? 100 : Math.floor(Math.log10(module.starred+module.watchers)*25);
+    // }
+    if (!module.starred) {
       module.starRank = 0;
-    } else { // NPM stars added to GitHub stars, then scaled on log10. Max score of 100 reached at 10,000 combined stars.
-      module.starRank = Math.floor(Math.log10(module.starred+module.watchers)*25) > 100 ? 100 : Math.floor(Math.log10(module.starred+module.watchers)*25);
+    } else {
+      module.starRank = module.starred*2 > 100 ? 100 : module.starred*2;
     }
 
     // Rank by number of modules listing this module as a dependency
@@ -90,22 +97,26 @@ var calculateRank = module.exports.calculateRank = function(module) {
       else module.completenessFailures = ['Keywords']; 
     }
 
-    // Rank by GitHub followers, forks, and open issues/pulls
-    if (!module.subscribers || !module.forks || !module.openIssues) {
-      module.githubRank = 0;
-    } else {
-      // Count users watching repo for 33 of 100 points. Scaled on log10 with max score of 33 reached at 1500 users watching. 
-      var watchersPortion = Math.floor(Math.log10(module.subscribers)*31.5/100*33) > 33 ? 33 : Math.floor(Math.log10(module.subscribers)*31.5/100*33);
-      // Count forked repos for 34 of 100 points. Scaled on log10 with max score of 34 reached at 1000 forks. 
-      var forkPortion = Math.floor(Math.log10(module.forks)*33/100*34) > 34 ? 34 : Math.floor(Math.log10(module.forks)*33/100*34);
-      // Count issues+pulls for 33 of 100 points. Scaled on log10 with max score of 33 reached at 150 open issues/pulls.
-      var issuesPortion = Math.floor(Math.log10(module.openIssues)*46/100*33) > 33 ? 33 : Math.floor(Math.log10(module.openIssues)*46/100*33);
-      module.githubRank = watchersPortion + forkPortion + issuesPortion;
-    }
+    // Comment out GitHub data. May re-implement later.
+    // // Rank by GitHub followers, forks, and open issues/pulls
+    // if (!module.subscribers || !module.forks || !module.openIssues) {
+    //   module.githubRank = 0;
+    // } else {
+    //   // Count users watching repo for 33 of 100 points. Scaled on log10 with max score of 33 reached at 1500 users watching. 
+    //   var watchersPortion = Math.floor(Math.log10(module.subscribers)*31.5/100*33) > 33 ? 33 : Math.floor(Math.log10(module.subscribers)*31.5/100*33);
+    //   // Count forked repos for 34 of 100 points. Scaled on log10 with max score of 34 reached at 1000 forks. 
+    //   var forkPortion = Math.floor(Math.log10(module.forks)*33/100*34) > 34 ? 34 : Math.floor(Math.log10(module.forks)*33/100*34);
+    //   // Count issues+pulls for 33 of 100 points. Scaled on log10 with max score of 33 reached at 150 open issues/pulls.
+    //   var issuesPortion = Math.floor(Math.log10(module.openIssues)*46/100*33) > 33 ? 33 : Math.floor(Math.log10(module.openIssues)*46/100*33);
+    //   module.githubRank = watchersPortion + forkPortion + issuesPortion;
+    // }
 
+    // Comment out GitHub data. May re-implement later.
     // Calculate overall rank as average of individual rankings
-    var rankSum = (module.dateRank + module.versionNumberRank + module.downloadRank + module.starRank + module.dependentRank + module.completenessRank + module.githubRank)
-    module.overallRank = Math.floor(rankSum/7)
+    // var rankSum = (module.dateRank + module.versionNumberRank + module.downloadRank + module.starRank + module.dependentRank + module.completenessRank + module.githubRank)
+    // module.overallRank = Math.floor(rankSum/7)
+    var rankSum = (module.dateRank + module.versionNumberRank + module.downloadRank + module.starRank + module.dependentRank + module.completenessRank)
+    module.overallRank = Math.floor(rankSum/6)
   }
 
 // Returns an array of all the dependents
@@ -176,7 +187,8 @@ var moduleDataBuilder = module.exports.moduleDataBuilder = function(moduleName, 
       // write module to errorQueue
     } else if (results[0] && (results[0].description !== '' || results[0].starred || results[0].time)) {
       // Inside here i have access to the result[0].github = {user:'username', repo: 'repo-name'} object
-      var githubConfig = results[0].github || undefined;
+      // Comment out GitHub data. May re-implement later.
+      // var githubConfig = results[0].github || undefined;
       module['description'] = results[0].description || 'None Provided';
       module['readme'] = results[0].readme || 'None Provided';
       module['time'] = results[0].time || 'None Provided';
@@ -188,21 +200,23 @@ var moduleDataBuilder = module.exports.moduleDataBuilder = function(moduleName, 
       findMonthlyDownloads(module, function(err, moduleWithDownloads){
         findDependents(module, function(err, finalData){
           if (finalData.dependents && finalData.downloads){ // Check to make sure the data is good before sending to GitHub API
-            if(githubConfig) github.repos.get(githubConfig, function(err, result){
+            // Comment out GitHub data. May re-implement later.
+            // if(githubConfig) github.repos.get(githubConfig, function(err, result){
               if(err){
-                console.log('github-api grab error', err); 
+                // console.log('github-api grab error', err); 
+                console.log('Error in getting data.')
                 cb(err, null);
                 return;
               } 
               console.log('Success!', moduleName, 'going back to DB now.')
 
-              finalData['subscribers'] = result['subscribers_count'];
-              finalData['forks'] = result['forks_count'];
-              finalData['watchers'] = result['watchers_count'];
-              finalData['openIssues'] = result['open_issues_count'];
+              // finalData['subscribers'] = result['subscribers_count'];
+              // finalData['forks'] = result['forks_count'];
+              // finalData['watchers'] = result['watchers_count'];
+              // finalData['openIssues'] = result['open_issues_count'];
 
               cb(null, finalData);
-            });
+            }//);
           } else {
             console.log('Something went wrong in findDependents. Will try',moduleName,'again later.')
             console.log('dependents', finalData.dependents, 'downloads', finalData.downloads)
