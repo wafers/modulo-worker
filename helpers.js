@@ -79,6 +79,7 @@ var calculateRank = module.exports.calculateRank = function(module) {
     // Rank by NPM module submission completeness (quality module must have Readme, Keywords, and URL)
     // Store lacking pieces for rank explanations
     module.completenessRank = 0;
+    module.completenessFailures = [];
     if (module.readme !== 'No readme provided') {
       module.completenessRank += 34;
     } else {
