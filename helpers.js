@@ -221,7 +221,7 @@ var moduleDataBuilder = module.exports.moduleDataBuilder = function(moduleName, 
               finalData = calculateRank(finalData);
 
               cb(null, finalData);
-            }//);
+            //});
           } else {
             console.log('Something went wrong in findDependents. Will try',moduleName,'again later.')
             console.log('dependents', finalData.dependents, 'downloads', finalData.downloads)
