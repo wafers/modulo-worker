@@ -8,11 +8,13 @@ var dbRemote = require("seraph")({
 });
 var ASQ = require('asynquence');
 var urlToJobSystem = process.env.joburl || config.joburl
+var numberOfInsertions = process.env.numberOfInsertions || 8
 
 var relationshipInsert = module.exports.relationshipInsert = function(collection, moduleName, cb) {
     // var collection =
     // var moduleName = 
     function doInsert(relationshipName) {
+        console.log("Inserting module relationship for module ",moduleName , " with module ", relationshipName)
         var querry = "MERGE (n:MODULE { name : {relationshipModule}  }) MERGE(m:MODULE { name: {mainNode} }) MERGE (n)-[:DEPENDS_ON]->(m)"
         return function() {
             return ASQ().then(function(done) {
@@ -37,12 +39,12 @@ var relationshipInsert = module.exports.relationshipInsert = function(collection
             cb();
         } else {
             //grab the first five in the list
-            var batch = collection.slice(0, 12)
+            var batch = collection.slice(0, numberOfInsertions)
                 //remove the first five from the list
-            collection = collection.slice(12)
+            collection = collection.slice(numberOfInsertions)
                 //turn every item in the array into a function producing promise
             batch = batch.map(doInsert)
-            console.log(Math.ceil(collection.length / 12), " Batches needing to get done")
+            console.log(Math.ceil(collection.length / numberOfInsertions), " Batches needing to get done")
             ASQ().gate.apply(null,
                     //Insert all five promise producing functions, into our gate call
                     batch.map(function(item) {
@@ -144,8 +146,8 @@ var keyInsert = module.exports.keyInsert = function(dataObj, cb) {
     function doInsertModKey(tuple) {
 
         return function() {
+            console.log("Inserting Keyword relationship for module", tuple[0])
             var querry = "MERGE (m:MODULE{ name: {moduleName} }) MERGE (n:KEYWORD{name:{keywordName}}) MERGE (n)-[:KEYWORD_OF]->(m)"
-            console.log(querry)
             return ASQ().then(function(done) {
                 // console.log(moduleName)
                 // console.log(key)
@@ -158,7 +160,6 @@ var keyInsert = module.exports.keyInsert = function(dataObj, cb) {
                             done.fail(err);
                         } else {
                             console.log("Done inserting module relationship with keyword")
-                            console.log(result)
                             done();
                         }
                     })
@@ -169,10 +170,9 @@ var keyInsert = module.exports.keyInsert = function(dataObj, cb) {
     function doInsertKeyKey(tuple) {
 
         return function() {
+            console.log("Inserting key relationship with key: ", tuple[0], "and key: ", tuple[1])
             var querry = "MERGE (x:KEYWORD {name:'" + tuple[0] + "'}) MERGE (y:KEYWORD{name:'" + tuple[1] + "'}) MERGE (x)-[z:KEYWORD_RELATED_WITH]-(y) ON CREATE SET z.count = 1 ON MATCH SET z.count = z.count + 1 RETURN x,y,z;"
             return ASQ().then(function(done) {
-                // console.log(moduleName)
-                // console.log(key)
                 dbRemote.queryRaw(querry,
                     function(err, result) {
                         if (err) {
@@ -187,8 +187,6 @@ var keyInsert = module.exports.keyInsert = function(dataObj, cb) {
     }
     keysWithKeys = keysWithKeys.map(doInsertKeyKey)
     keyWithMod = keyWithMod.map(doInsertModKey)
-        // console.log(keysWithKeys)
-        // console.log(keyWithMod)
     var promiseArray = keysWithKeys.concat(keyWithMod)
         // console.log(promiseArray.toString())
     var doBatch = function() {
