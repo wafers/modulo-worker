@@ -66,9 +66,8 @@ var calculateRank = module.exports.calculateRank = function(module) {
     if (!module.starred) {
       module.starRank = 0;
     } else {
-      module.starRank = module.starred*2 > 100 ? 100 : module.starred*2;
+      module.starRank = module.starred.length*2 > 100 ? 100 : module.starred.length*2;
     }
-
     // Rank by number of modules listing this module as a dependency
     if (!module.dependentsSize) {
       module.dependentRank = 0;
@@ -118,7 +117,6 @@ var calculateRank = module.exports.calculateRank = function(module) {
     // module.overallRank = Math.floor(rankSum/7)
     var rankSum = (module.dateRank + module.versionNumberRank + module.downloadRank + module.starRank + module.dependentRank + module.completenessRank)
     module.overallRank = Math.floor(rankSum/6)
-
     return module;
   }
 
