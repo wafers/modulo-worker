@@ -19,7 +19,7 @@ var relationshipInsert = module.exports.relationshipInsert = function(collection
                 dbRemote.queryRaw(querry, {
                     relationshipModule : relationshipName,
                     mainNode : moduleName
-                }
+                },
                     function(err, result) {
                         if (err) {
                             done.fail(err);
@@ -152,7 +152,7 @@ var keyInsert = module.exports.keyInsert = function(dataObj, cb) {
                 dbRemote.queryRaw(querry, {
                     moduleName: tuple[0],
                     keywordName : tuple[1]
-                }
+                },
                     function(err, result) {
                         if (err) {
                             done.fail(err);
