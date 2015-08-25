@@ -171,10 +171,12 @@ var keyInsert = module.exports.keyInsert = function(dataObj, cb) {
 
         return function() {
             console.log("Inserting key relationship with key: ", tuple[0], "and key: ", tuple[1])
-            var querry = "MERGE (x:KEYWORD {name:'" + tuple[0] + "'}) MERGE (y:KEYWORD{name:'" + tuple[1] + "'}) MERGE (x)-[z:KEYWORD_RELATED_WITH]-(y) ON CREATE SET z.count = 1 ON MATCH SET z.count = z.count + 1 RETURN x,y,z;"
+            var querry = "MERGE (x:KEYWORD {name:{keyword1}}) MERGE (y:KEYWORD{name:{keyword2}}) MERGE (x)-[z:KEYWORD_RELATED_WITH]-(y) ON CREATE SET z.count = 1 ON MATCH SET z.count = z.count + 1 RETURN x,y,z;"
             return ASQ().then(function(done) {
-                dbRemote.queryRaw(querry,
-                    function(err, result) {
+                dbRemote.queryRaw(querry, {
+                    keyword1 : tuple[0],
+                    keyword2 : tuple[1]
+                },function(err, result) {
                         if (err) {
                             done.fail(err);
                         } else {
