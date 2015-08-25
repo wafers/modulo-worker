@@ -13,10 +13,13 @@ var relationshipInsert = module.exports.relationshipInsert = function(collection
     // var collection =
     // var moduleName = 
     function doInsert(relationshipName) {
-        var querry = "MERGE (n:MODULE { name : '" + relationshipName + "'  }) MERGE(m:MODULE { name: '" + moduleName + "' }) MERGE (n)-[:DEPENDS_ON]->(m)"
+        var querry = "MERGE (n:MODULE { name : {relationshipModule}  }) MERGE(m:MODULE { name: {mainNode} }) MERGE (n)-[:DEPENDS_ON]->(m)"
         return function() {
             return ASQ().then(function(done) {
-                dbRemote.queryRaw(querry,
+                dbRemote.queryRaw(querry, {
+                    relationshipModule : relationshipName,
+                    mainNode : moduleName
+                }
                     function(err, result) {
                         if (err) {
                             done.fail(err);
@@ -141,12 +144,15 @@ var keyInsert = module.exports.keyInsert = function(dataObj, cb) {
     function doInsertModKey(tuple) {
 
         return function() {
-            var querry = "MERGE (m:MODULE{ name: '" + tuple[0] + "' }) MERGE (n:KEYWORD{name:'" + tuple[1] + "'}) MERGE (n)-[:KEYWORD_OF]->(m)"
+            var querry = "MERGE (m:MODULE{ name: {moduleName} }) MERGE (n:KEYWORD{name:{keywordName}}) MERGE (n)-[:KEYWORD_OF]->(m)"
             console.log(querry)
             return ASQ().then(function(done) {
                 // console.log(moduleName)
                 // console.log(key)
-                dbRemote.queryRaw(querry,
+                dbRemote.queryRaw(querry, {
+                    moduleName: tuple[0],
+                    keywordName : tuple[1]
+                }
                     function(err, result) {
                         if (err) {
                             done.fail(err);
